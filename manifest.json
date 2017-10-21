@@ -1,0 +1,54 @@
+{
+
+  "manifest_version": 2,
+  "name": "__MSG_extensionName__",
+  "description": "__MSG_extensionDescription__",
+  "version": "4.0.8",
+  "default_locale": "en",
+
+  "applications": {
+    "gecko": {
+      "id": "jid1-PmBVeuWLfYr73g@jetpack"
+    }
+  },
+
+  "icons": {
+    "48": "icons/twitch-fox.svg",
+    "96": "icons/twitch-fox.svg"
+  },
+
+  "permissions": [
+    "notifications",
+    "storage",
+    "alarms",
+    "tabs",
+    "https://hunter5000.github.io/*"
+  ],
+
+  "background": {
+    "scripts": [
+      "twitch-api.js",
+      "authorize.js",
+      "storage.js",
+      "notifications.js",
+      "alarm.js"
+    ]
+  },
+
+  "browser_action": {
+    "browser_style": false,
+    "default_icon": "icons/twitch-fox.svg",
+    "default_title": "Twitch Fox",
+    "default_popup": "popup/popup.html"
+  },
+
+  "options_ui": {
+    "page": "options/options.html",
+    "browser_style": true
+  },
+
+  "content_scripts": [
+
+  ]
+
+}

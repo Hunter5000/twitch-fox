@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <meta charset="utf-8">
+</head>
+
+<body>
+  <form>
+    <strong class="i18n" id="easeOfUseSettings"></strong>
+    <br>
+
+    <label class="i18n" id="enableTooltips"></label>
+    <input class="checkbox" type="checkbox" id="tooltips">
+    <br>
+
+    <label class="i18n" id="showNewUserMessage"></label>
+    <input class="checkbox" type="checkbox" id="showNewUser">
+    <br>
+
+    <label class="i18n" id="showWhatsNewMessage"></label>
+    <input class="checkbox" type="checkbox" id="showWhatsNew">
+    <br>
+
+    <br>
+    <strong class="i18n" id="nameOrNotificationClicked"></strong>
+    <br>
+
+    <label class="i18n" id="openTwitchPageSetting"></label>
+    <input class="checkbox" type="checkbox" id="openTwitchPage">
+    <br>
+
+    <label class="i18n" id="openPopoutSetting"></label>
+    <input class="checkbox" type="checkbox" id="openPopout">
+    <br>
+
+    <label class="i18n" id="openChatSetting"></label>
+    <input class="checkbox" type="checkbox" id="openChat">
+    <br>
+
+    <span id="notification">
+
+        <br>
+        <strong class="i18n" id="favoriteNotificationSettings"></strong>
+        <br>
+
+        <label class="i18n" id="favoriteDesktopNotifications"></label>
+        <input class="checkbox" type="checkbox" id="favoritesDesktopNotificiations">
+        <br>
+
+        <label class="i18n" id="favoriteAudioNotifications"></label>
+        <input class="checkbox" type="checkbox" id="favoritesAudioNotificiations">
+        <br>
+
+        <input class="i18n button" type="button" id="unfavoriteAll">
+
+        <br>
+        <strong class="i18n" id="nonfavoriteNotificationSettings"></strong>
+        <br>
+
+        <label class="i18n" id="nonfavoriteDesktopNotifications"></label>
+        <input class="checkbox" type="checkbox" id="nonfavoritesDesktopNotifications">
+        <br>
+
+        <label class="i18n" id="nonfavoriteAudioNotifications"></label>
+        <input class="checkbox" type="checkbox" id="nonfavoritesAudioNotificiations">
+        <br>
+
+        <span id="audioNotification">
+
+          <br>
+          <strong class="i18n" id="audioNotificationSettings"></strong>
+          <br>
+
+          <label class="i18n" id="audioNotificationVolume"></label>
+          <input class="number" type="number" min="0" max="100" id="alarmVolume">
+          <br>
+
+          <label class="i18n" id="audioNotificationInterval"></label>
+          <input class="number" type="number" min="1" id="alarmInterval">
+          <br>
+
+          <label class="i18n" id="audioNotificationLimit"></label>
+          <input class="checkbox" type="checkbox" id="limitAlarm">
+          <br>
+
+          <span id= "alarmLimit">
+            <label class="i18n" id="audioNotificationLength"></label>
+            <input class="number" type="number" min="1" id="alarmLength">
+            <br>
+          </span>
+
+    <input class="i18n button" type="button" id="testAudioNotification">
+    <br>
+
+    </span>
+
+    <br>
+    <strong class="i18n" id="otherNotificationSettings"></strong>
+    <br>
+
+    <label class="i18n" id="minutesBetweenStreamCheck"></label>
+    <input class="number" type="number" min="1" id="minutesBetweenCheck">
+    <br>
+
+    </span>
+
+    <br>
+    <strong class="i18n" id="browsingSettings"></strong>
+    <br>
+
+    <label class="i18n" id="browsingLanguageCode"></label>
+    <input class="text" type="text" id="languageCodes">
+    <br>
+
+    <label class="i18n" id="browsingNumberOfResults"></label>
+    <input class="number" type="number" min="10" max="100" id="resultLimit">
+  </form>
+
+  <script src="options.js"></script>
+</body>
+
+</html>

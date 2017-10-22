@@ -9,30 +9,33 @@ function getFollowedStreams(callback, offset = 0) {
   /*
     Get all of a user's followed streams
   */
-  if (!authorizedUser) {
-    userFollowedStreams = [];
-    callback();
-  }
+  var limit = 100; //Special result limit used for this function only
+  var j = 0;
   if (!offset) {
     userFollowedStreams = [];
   }
-  var limit = 100; //Special result limit used for this function only
-  twitchAPI('Get Followed Streams', {
-    offset: offset,
-    limit: limit
-  }, (data) => {
-    var j = 0;
+  var twitchCallback = function(data) {
     for (var i = 0; i < data.streams.length; i += 1) {
       if (userFollowIDs.indexOf(String(data.streams[i].channel._id)) < 0) {
         //For some reason, we don't have this channel marked as followed
-        //Assume that Twitch is right, and update our follows!
-        getUserFollows(() => {
-          browser.runtime.sendMessage({
-            content: "followedChannels"
+        if (authorizedUser) {
+          //Assume that Twitch is right, and update our follows!
+          getUserFollows(() => {
+            browser.runtime.sendMessage({
+              content: "followed"
+            });
           });
-        });
+        } else if (getStorage("nonTwitchFollows")) {
+          //I have no clue when this would ever happen
+          getFollows(() => {
+            browser.runtime.sendMessage({
+              content: "followed"
+            });
+          });
+        }
       }
-      if (userFollowedStreams.indexOf(data.streams[i]._id) < 0) {
+      if (userFollowedStreams.map(stream => stream._id).indexOf(
+          data.streams[i]._id) < 0) {
         userFollowedStreams.push(data.streams[i]);
         var notifiedStreams = getStorage("notifiedStreams");
         if (getStorage("notifiedStreams").indexOf(data.streams[i]._id) < 0) {
@@ -50,16 +53,31 @@ function getFollowedStreams(callback, offset = 0) {
     } else {
       callback();
     }
-  })
+  }
+  if (authorizedUser) {
+    twitchAPI('Get Followed Streams', {
+      offset: offset,
+      limit: limit
+    }, (data) => twitchCallback(data));
+  } else if (getStorage("nonTwitchFollows")) {
+    twitchAPI('Get Live Streams', {
+      channel: getStorage("follows").join(","),
+      offset: offset,
+      limit: limit
+    }, (data) => twitchCallback(data));
+  } else {
+    userFollowedStreams = [];
+    callback();
+  }
 }
 
 function notify(stream) {
   //We assume that the channel is followed and the stream is new
   if (getStorage("favorites").indexOf(stream.channel._id) > -1) {
     //Favorited channel
-    if (getStorage("favoritesDesktopNotificiations"))
+    if (getStorage("favoritesDesktopNotifications"))
       desktopNotification(stream);
-    if (getStorage("favoritesAudioNotificiations")) setAlarm(stream);
+    if (getStorage("favoritesAudioNotifications")) setAlarm(stream);
   } else {
     //Regular followed channel
     if (getStorage("nonfavoritesDesktopNotifications"))
@@ -163,7 +181,7 @@ function onFollowAlarmTrigger() {
   getFollowedStreams(() => {
     updateBadge();
     browser.runtime.sendMessage({
-      content: "followedStreams"
+      content: "followed"
     });
   });
 }

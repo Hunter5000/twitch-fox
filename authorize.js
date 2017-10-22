@@ -73,6 +73,7 @@ function deauthorize(callback) {
   userFollowIDs = [];
   userFollows = [];
   userFollowedStreams = [];
+  if (getStorage("nonTwitchFollows")) getFollows();
   endAlarm();
   updateBadge();
   callback();
@@ -88,6 +89,7 @@ function getUserFollows(callback, offset = 0) {
     userFollows = [];
   }
   twitchAPI('Get User Follows', {
+    _id: authorizedUser._id,
     offset: offset,
     limit: limit
   }, (data) => {
@@ -122,7 +124,7 @@ function getAuthorizedUser() {
     //Now get the user's follows
     getUserFollows(() => {
       browser.runtime.sendMessage({
-        content: "followedChannels"
+        content: "followed"
       });
       //Now get the user's followed streams
       startFollowAlarm();

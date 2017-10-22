@@ -76,7 +76,7 @@
   },
 
   "noAccessTip": {
-    "message": "You're not logged in with Twitch, so Twitch Fox can't access your followed content!",
+    "message": "Twitch Fox cannot access followed content without Twitch authorization unless this is enabled in the settings",
     "description": "Tooltip displayed over the followed content tabs when the user is not logged in with Twitch."
   },
 
@@ -160,7 +160,7 @@
   },
 
   "aboutTextWhatsNew2": {
-    "message": "Basically everything! The deprecation of the Add-on SDK to make way for the new WebExtension APIs meant a full rewrite of the code was basically inevitable, and for a while I was not up to the task, but here it is! The largest changes include a fully redesigned UI, the ability to browse clips, and a new 'favorites' system for managing follows. Followed channels have been removed when not logged in with Twitch, followed games are gone since their Twitch API is deprecated, and Livestreamer support is sadly gone until I can get it working. Other features may be missing as well since I wanted to get this version out quickly, so please let me know what you would like to be (re)added!",
+    "message": "From 4.0.X: Re-added the ability to follow channels without going through a Twitch account (The new option can be found in the settings page.) I apologize for removing this feature initially, and I am sorry if its current implementation is worse than before, but I understand how important this feature is to many of you, so I have made an effort to reimplement it as soon as I could.",
     "description": "Second part of the message detailing add-on update information."
   },
 
@@ -703,6 +703,17 @@
     }
   },
 
+  "unfollowAll": {
+    "message": "Unfollow all $NUMBER$ followed channels (Not through Twitch)",
+    "description": "Text for the button that unfollows all followed channels.",
+    "placeholders": {
+      "number": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+
   "areYouSure": {
     "message": "Are you sure? Click to confirm.",
     "description": "Confirmation for an action."
@@ -778,5 +789,25 @@
         "example": "Hunter#3581"
       }
     }
+  },
+
+  "followsSettings": {
+    "message": "Follows Settings",
+    "description": "Header for the settings that deal with follows."
+  },
+
+  "enableNonTwitchFollows": {
+    "message": "Enable the ability to follow channels without being logged in with a Twitch account",
+    "description": "Description of the option that allows the following of channels without being logged in with Twitch."
+  },
+
+  "importFollows": {
+    "message": "Import follows from file",
+    "description": "Description of the button that allows follow importation."
+  },
+
+  "exportFollows": {
+    "message": "Export follows to file",
+    "description": "Description of the button that allows follow exportation."
   }
 }

@@ -3,8 +3,9 @@
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
-  "version": "4.0.8",
+  "version": "4.1.0",
   "default_locale": "en",
+  "incognito": "not_allowed",
 
   "applications": {
     "gecko": {
@@ -31,7 +32,8 @@
       "authorize.js",
       "storage.js",
       "notifications.js",
-      "alarm.js"
+      "alarm.js",
+      "follows.js"
     ]
   },
 

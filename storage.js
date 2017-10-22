@@ -8,21 +8,23 @@ const defaults = {
   token: '',
   mode: 'about',
   favorites: [],
+  follows: [],
   lastVersion: '',
   notifiedStreams: [],
   favoritesMode: false,
 
   //Settings
+  nonTwitchFollows: false,
   tooltips: true,
   showNewUser: true,
   showWhatsNew: true,
   openTwitchPage: false,
   openPopout: false,
   openChat: false,
-  favoritesDesktopNotificiations: true,
-  favoritesAudioNotificiations: true,
+  favoritesDesktopNotifications: true,
+  favoritesAudioNotifications: true,
   nonfavoritesDesktopNotifications: true,
-  nonfavoritesAudioNotificiations: false,
+  nonfavoritesAudioNotifications: false,
   alarmInterval: 1,
   limitAlarm: false,
   alarmLength: 10,
@@ -53,31 +55,61 @@ function setStorage(key, value, callback) {
   if (callback) callback();
 }
 
-function follow(channel, callback) {
-  //Only a provisional follow
-  if (userFollowIDs.indexOf(String(channel._id)) < 0) {
-    userFollowIDs.unshift(String(channel._id));
-    userFollows.unshift(channel);
+function follow(channel) {
+  if (getStorage("nonTwitchFollows")) {
+    //Add to the followed list
+    var follows = getStorage("follows");
+    if (follows.indexOf(String(channel._id)) < 0) {
+      follows.unshift(String(channel._id));
+      setStorage("follows", follows);
+      getFollow(String(channel._id));
+    }
+  } else {
+    //Only a provisional follow
+    if (userFollowIDs.indexOf(String(channel._id)) < 0) {
+      userFollowIDs.unshift(String(channel._id));
+      userFollows.unshift(channel);
+    }
   }
   //Also have to check if there are any new followed streams
   startFollowAlarm();
   updateBadge();
-  callback();
+  browser.runtime.sendMessage({
+    content: "followed"
+  });
 }
 
-function unfollow(channel, callback) {
-  //Only a provisional unfollow
-  var index = userFollowIDs.indexOf(String(channel._id));
-  if (index > -1) {
-    userFollows.splice(index, 1);
-    userFollowIDs.splice(index, 1);
+function unfollow(channel) {
+  if (getStorage("nonTwitchFollows")) {
+    //Remove from the followed list
+    var follows = getStorage("follows");
+    var index = follows.indexOf(String(channel._id));
+    if (index > -1) {
+      follows.splice(index, 1);
+      setStorage("follows", follows);
+    }
+    //Also have to remove from userFollows(IDs)
+    index = userFollowIDs.indexOf(String(channel._id));
+    if (index > -1) {
+      userFollows.splice(index, 1);
+      userFollowIDs.splice(index, 1);
+    }
+  } else {
+    //Only a provisional unfollow
+    var index = userFollowIDs.indexOf(String(channel._id));
+    if (index > -1) {
+      userFollows.splice(index, 1);
+      userFollowIDs.splice(index, 1);
+    }
   }
   //Also see if we have to remove a followed stream
   index = userFollowedStreams.map(stream => String(stream.channel._id)).indexOf(
     String(channel._id));
   if (index > -1) userFollowedStreams.splice(index, 1);
   updateBadge();
-  callback();
+  browser.runtime.sendMessage({
+    content: "followed"
+  });
 }
 
 function favorite(_id, callback) {
@@ -140,7 +172,11 @@ browser.storage.sync.get(null).then((res) => {
     } else {
       //This is the last setting, so make sure to wake up the other scripts
       val = res[prop] == null ? defaults[prop] : res[prop];
-      setStorage(prop, val, getAuthorizedUser);
+      if (getStorage("token")) {
+        setStorage(prop, val, getAuthorizedUser);
+      } else if (getStorage("nonTwitchFollows")) {
+        setStorage(prop, val, () => initFollows);
+      }
     }
   }
 })

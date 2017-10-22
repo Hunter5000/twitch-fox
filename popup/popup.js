@@ -6,7 +6,6 @@
 */
 
 var bp = browser.extension.getBackgroundPage();
-var authorizedUser;
 var mode;
 var showNewUser;
 var showWhatsNew;
@@ -73,13 +72,11 @@ function initialize() {
   showNewUser = bp.getStorage('showNewUser');
   showWhatsNew = bp.getStorage('showWhatsNew');
 
-  authorizedUser = bp.authorizedUser;
-
   //Login/logout
-  if (authorizedUser) {
+  if (bp.authorizedUser) {
     loginText.textContent = browser.i18n.getMessage("logout");
     avatar.classList.remove("noAccess");
-    avatar.style.backgroundImage = 'url("' + authorizedUser.logo + '")';
+    avatar.style.backgroundImage = 'url("' + bp.authorizedUser.logo + '")';
   } else {
     loginText.textContent = browser.i18n.getMessage("login");
     avatar.classList.add("noAccess");
@@ -96,7 +93,9 @@ function initialize() {
     var tooltip = tooltips[i];
     if (!tooltip.id) continue;
     if (tooltip.id.substring(0, 8) == "followed") {
-      if (authorizedUser) {
+      if (bp.authorizedUser || (bp.getStorage("nonTwitchFollows") && (
+          tooltip.id == "followedStreamsTip" || tooltip.id ==
+          "followedChannelsTip"))) {
         tooltip.textContent = browser.i18n.getMessage(tooltip.id);
         tooltip.parentElement.classList.remove("noAccess");
       } else {
@@ -104,14 +103,14 @@ function initialize() {
         tooltip.parentElement.classList.add("noAccess");
       }
     } else if (tooltip.id == "loginTip") {
-      if (authorizedUser) {
+      if (bp.authorizedUser) {
         tooltip.textContent = browser.i18n.getMessage("logoutTip");
       } else {
         tooltip.textContent = browser.i18n.getMessage(tooltip.id);
       }
     } else if (tooltip.id == "avatarTip") {
-      if (authorizedUser) tooltip.textContent = browser.i18n.getMessage(
-        tooltip.id, authorizedUser.display_name);
+      if (bp.authorizedUser) tooltip.textContent = browser.i18n.getMessage(
+        tooltip.id, bp.authorizedUser.display_name);
     } else {
       tooltip.textContent = browser.i18n.getMessage(tooltip.id);
     }
@@ -481,15 +480,17 @@ function addCard(content, type) {
       var followButton = document.createElement("div");
       followButton.classList.add("contentButton", "bottom", "stream",
         followed ? "unfollow" : "follow");
-      if (!authorizedUser) followButton.classList.add("noAccess")
+      if (!bp.authorizedUser && !bp.getStorage("nonTwitchFollows"))
+        followButton.classList.add("noAccess")
       else
         followButton.addEventListener("click", () => {
           if (followed) followApi("Unfollow Channel", content.channel)
           else followApi("Follow Channel", content.channel);
         })
       addTooltip(followButton).textContent = browser.i18n.getMessage(
-        authorizedUser ? (followed ? "unfollowTip" : "followTip") :
-        "cantFollowTip", content.channel.display_name);
+        followButton.classList.contains("noAccess") ? "noAccessTip" :
+        (followed ? "unfollowTip" : "followTip"), content.channel.display_name);
+
       hideUntilHover.appendChild(followButton);
 
       var videosButton = document.createElement("div");
@@ -713,15 +714,16 @@ function addCard(content, type) {
       var followButton = document.createElement("div");
       followButton.classList.add("contentButton", "bottom", "stream",
         followed ? "unfollow" : "follow");
-      if (!authorizedUser) followButton.classList.add("noAccess")
+      if (!bp.authorizedUser && !bp.getStorage("nonTwitchFollows"))
+        followButton.classList.add("noAccess")
       else
         followButton.addEventListener("click", () => {
           if (followed) followApi("Unfollow Channel", thisChannel)
           else followApi("Follow Channel", thisChannel);
         })
       addTooltip(followButton).textContent = browser.i18n.getMessage(
-        authorizedUser ? (followed ? "unfollowTip" : "followTip") :
-        "cantFollowTip", thisChannel.display_name);
+        followButton.classList.contains("noAccess") ? "noAccessTip" :
+        (followed ? "unfollowTip" : "followTip"), thisChannel.display_name);
       hideUntilHover.appendChild(followButton);
 
       var videosButton = document.createElement("div");
@@ -882,15 +884,16 @@ function addCard(content, type) {
       var followButton = document.createElement("div");
       followButton.classList.add("contentButton", "bottom", "channel",
         followed ? "unfollow" : "follow");
-      if (!authorizedUser) followButton.classList.add("noAccess")
+      if (!bp.authorizedUser && !bp.getStorage("nonTwitchFollows"))
+        followButton.classList.add("noAccess")
       else
         followButton.addEventListener("click", () => {
           if (followed) followApi("Unfollow Channel", channel)
           else followApi("Follow Channel", channel);
         })
       addTooltip(followButton).textContent = browser.i18n.getMessage(
-        authorizedUser ? (followed ? "unfollowTip" : "followTip") :
-        "cantFollowTip", channel.display_name);
+        followButton.classList.contains("noAccess") ? "noAccessTip" :
+        (followed ? "unfollowTip" : "followTip"), channel.display_name);
       hideUntilHover.appendChild(followButton);
 
       var videosButton = document.createElement("div");
@@ -977,20 +980,25 @@ function updateTab(newMode) {
     contentArea.classList.remove("hide");
     searchBar.classList.remove("hide");
 
-    if (index == 0 && results[index].content.length < 1) {
+    if (index == 0) {
       //Tell the Twitch API to find us the information we want
       switch (mode) {
         case "games":
-          getApiResults("Get Top Games");
+          if (results[index].content.length < 1) getApiResults("Get Top Games")
+          else updatePage();
           break;
         case "streams":
-          getApiResults("Get Live Streams");
+          if (results[index].content.length < 1)
+            getApiResults("Get Live Streams")
+          else updatePage();
           break;
         case "videos":
-          getApiResults("Get Top Videos");
+          if (results[index].content.length < 1)
+            getApiResults("Get Top Videos");
           break;
         case "clips":
-          getApiResults("Get Top Clips");
+          if (results[index].content.length < 1) getApiResults("Get Top Clips")
+          else updatePage();
           break;
         case "channels":
           updatePage();
@@ -1006,10 +1014,14 @@ function updateTab(newMode) {
           updatePage();
           break;
         case "followedVideos":
-          getApiResults("Get Followed Videos");
+          if (results[index].content.length < 1)
+            getApiResults("Get Followed Videos")
+          else updatePage();
           break;
         case "followedClips":
-          getApiResults("Get Followed Clips");
+          if (results[index].content.length < 1)
+            getApiResults("Get Followed Clips")
+          else updatePage();
           break;
         case "followedChannels":
           var results = bp.getResults();
@@ -1118,32 +1130,43 @@ function getApiResults(endpoint, opts = {}, newIndex, reset) {
 }
 
 function followApi(endpoint, channel) {
-  refresh.classList.add("thinking");
-  bp.twitchAPI(endpoint, {
-    _id: String(channel._id)
-  }, () => {
-    //Temporarily follow/unfollow
-    refresh.classList.remove("thinking");
+  if (bp.authorizedUser) {
+    refresh.classList.add("thinking");
+    bp.twitchAPI(endpoint, {
+      _id: String(channel._id)
+    }, () => {
+      //Temporarily follow/unfollow
+      refresh.classList.remove("thinking");
+      switch (endpoint) {
+        case "Follow Channel":
+          bp.follow(channel);
+          break;
+        case "Unfollow Channel":
+          bp.unfollow(channel);
+          break;
+      }
+      //Now actually update our follows for real
+      //Just kidding this seems very overly API intensive
+      /*bp.getUserFollows(() => {
+        refresh.classList.remove("thinking");
+        if (mode == "followedChannels") {
+          initialize();
+        } else {
+          updatePage();
+        }
+        bp.startFollowAlarm();
+      });*/
+    });
+  } else if (bp.getStorage("nonTwitchFollows")) {
     switch (endpoint) {
       case "Follow Channel":
-        bp.follow(channel, updatePage);
+        bp.follow(channel);
         break;
       case "Unfollow Channel":
-        bp.unfollow(channel, updatePage);
+        bp.unfollow(channel);
         break;
     }
-    //Now actually update our follows for real
-    //Just kidding this seems very overly API intensive
-    /*bp.getUserFollows(() => {
-      refresh.classList.remove("thinking");
-      if (mode == "followedChannels") {
-        initialize();
-      } else {
-        updatePage();
-      }
-      bp.startFollowAlarm();
-    });*/
-  });
+  }
 }
 
 function filterContent(noScroll) {
@@ -1354,8 +1377,8 @@ exitSearch.addEventListener("click", () => {
 
 //Avatar
 avatar.addEventListener("click", () => {
-  if (authorizedUser) {
-    var url = "https://www.twitch.tv/" + authorizedUser.name;
+  if (bp.authorizedUser) {
+    var url = "https://www.twitch.tv/" + bp.authorizedUser.name;
     browser.tabs.create({
       url: url
     });
@@ -1364,7 +1387,7 @@ avatar.addEventListener("click", () => {
 
 //Login/logout
 login.addEventListener("click", () => {
-  if (authorizedUser) {
+  if (bp.authorizedUser) {
     bp.deauthorize(initialize);
   } else {
     bp.authorize(initialize);
@@ -1427,8 +1450,8 @@ contentArea.addEventListener("scroll", () => {
 })
 
 browser.runtime.onMessage.addListener((request) => {
-  if (request.content == "initialize" || mode == request.content) initialize()
-  //else if (request.content == "endAlarm") bp.endAlarm()
+  if (request.content == "initialize" || (request.content == "followed" &&
+      mode.substr(0, 8) == "followed")) initialize();
   else updatePage(true);
 });
 

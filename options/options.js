@@ -1,16 +1,25 @@
 var bp = browser.extension.getBackgroundPage();
 
+var nonTwitch = document.getElementById("nonTwitch");
 var notification = document.getElementById("notification");
 var audioNotification = document.getElementById("audioNotification");
 var unfavoriteAll = document.getElementById("unfavoriteAll");
+var unfollowAll = document.getElementById("unfollowAll");
 var alarmLimit = document.getElementById("alarmLimit");
 var testAudioNotification = document.getElementById("testAudioNotification");
+var importButton = document.getElementById("importButton");
+var exportFollows = document.getElementById("exportFollows");
 
-notification.style.display = bp.authorizedUser ? "inline" : "none";
+nonTwitch.style.display = bp.getStorage("nonTwitchFollows") &&
+  !bp.authorizedUser ? "inline" : "none";
+notification.style.display = bp.authorizedUser ||
+  bp.getStorage("nonTwitchFollows") ? "inline" : "none";
 audioNotification.style.display =
-  bp.getStorage('favoritesAudioNotificiations') ||
-  bp.getStorage('nonfavoritesAudioNotificiations') ? "inline" : "none";
-unfavoriteAll.style.display = bp.getStorage('favorites').length ? "inline" :
+  bp.getStorage("favoritesAudioNotifications") ||
+  bp.getStorage("nonfavoritesAudioNotifications") ? "inline" : "none";
+unfavoriteAll.style.display = bp.getStorage("favorites").length ? "inline" :
+  "none";
+unfollowAll.style.display = bp.getStorage("follows").length ? "inline" :
   "none";
 
 alarmLimit.style.display = bp.getStorage("limitAlarm") ? "inline" : "none";
@@ -21,6 +30,9 @@ for (var i = 0; i < i18ns.length; i += 1) {
   if (i18n.id == "unfavoriteAll") {
     i18n.value = browser.i18n.getMessage(i18n.id,
       bp.getStorage("favorites").length);
+  } else if (i18n.id == "unfollowAll") {
+    i18n.value = browser.i18n.getMessage(i18n.id,
+      bp.getStorage("follows").length);
   } else if (i18n.classList.contains("button")) {
     i18n.value = browser.i18n.getMessage(i18n.id);
   } else {
@@ -35,6 +47,7 @@ for (var i = 0; i < checkboxes.length; i += 1) {
   checkbox.addEventListener('change', (e) => {
     checkbox = e.target;
     bp.setStorage(checkbox.id, checkbox.checked);
+    if (checkbox.id == "nonTwitchFollows") bp.initFollows();
   })
 }
 
@@ -75,7 +88,43 @@ unfavoriteAll.addEventListener('click', () => {
         bp.getStorage("favorites").length);
     }, 2000);
   }
-})
+});
+
+unfollowAll.addEventListener('click', () => {
+  if (unfollowAll.value == browser.i18n.getMessage("areYouSure")) {
+    bp.unfollowAll();
+  } else {
+    unfollowAll.value = browser.i18n.getMessage("areYouSure");
+    window.setTimeout(() => {
+      unfollowAll.value = browser.i18n.getMessage("unfollowAll",
+        bp.getStorage("follow").length);
+    }, 2000);
+  }
+});
+
+importButton.addEventListener('change', () => {
+  var file = importButton.files[0];
+  var reader = new FileReader();
+  reader.onload = function() {
+    bp.importFollows(this.result);
+  };
+  reader.readAsText(file);
+});
+
+exportFollows.addEventListener('click', () => {
+  var textToWrite = JSON.stringify(bp.getStorage("follows"));
+  var textFileAsBlob = new Blob([textToWrite], {
+    type: 'text/plain'
+  });
+  var fileName = "Twitch_Fox_" + new Date().toJSON().slice(0, 10) + ".txt";
+  var downloadLink = document.createElement("a");
+  downloadLink.download = fileName;
+  downloadLink.textContent = "Save follows";
+  downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+  downloadLink.style.display = "none";
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+});
 
 testAudioNotification.addEventListener('click', () => {
   bp.playAlarm(true);

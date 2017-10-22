@@ -99,8 +99,9 @@ function twitchAPI(endpoint, opts, callback) {
       url = 'https://api.twitch.tv/kraken/clips/followed?';
       break;
     case 'Get User Follows':
-      url = 'https://api.twitch.tv/kraken/users/' + authorizedUser._id +
+      url = 'https://api.twitch.tv/kraken/users/' + opts._id +
         '/follows/channels?';
+      delete opts._id;
       break;
     case 'Get Channel Videos':
       url = 'https://api.twitch.tv/kraken/channels/' + opts._id + '/videos?';
@@ -114,6 +115,10 @@ function twitchAPI(endpoint, opts, callback) {
       break;
     case 'Search Streams':
       url = 'https://api.twitch.tv/kraken/search/streams?';
+      break;
+    case 'Get Channel by ID':
+      url = 'https://api.twitch.tv/kraken/channels/' + opts._id + '?';
+      delete opts._id;
       break;
     case 'Follow Channel':
       url = 'https://api.twitch.tv/kraken/users/' + authorizedUser._id +

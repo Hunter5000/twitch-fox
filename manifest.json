@@ -5,7 +5,6 @@
   "description": "__MSG_extensionDescription__",
   "version": "4.1.0",
   "default_locale": "en",
-  "incognito": "not_allowed",
 
   "applications": {
     "gecko": {

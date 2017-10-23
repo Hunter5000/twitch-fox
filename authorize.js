@@ -32,7 +32,7 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-function authorize(callback) {
+function authorize() {
   /*
     Sends the user to the authorization page
   */
@@ -45,41 +45,24 @@ function authorize(callback) {
   });
 }
 
-function deauthorize(callback) {
+function deauthorize() {
   /*
     Deletes the token from storage
-    So far I can't get real deauthorization working correctly, but this is what
-    it would look like:
-
-    var url = 'https://api.twitch.tv/kraken/oauth2/revoke?client_id='+client_id
-    +'&token='+token;
-    var init = {method: 'POST'};
-    fetch(url, init).then((response) => {
-
-    This also isn't working:
-
-    twitchAPI('Revoke Access Token', {
-      client_id: client_id,
-      token: token
-    }, (data) => {
-      setStorage('token', '');
-      token = ''
-      authorizedUser = null;
-      callback();
-    });
   */
   setStorage('token', '');
   authorizedUser = null;
   userFollowIDs = [];
   userFollows = [];
   userFollowedStreams = [];
-  if (getStorage("nonTwitchFollows")) getFollows();
+  getFollows();
   endAlarm();
   updateBadge();
-  callback();
+  browser.runtime.sendMessage({
+    content: "followed"
+  });
 }
 
-function getUserFollows(callback, offset = 0) {
+function getUserFollows(offset = 0) {
   /*
     Get all of a user's followed channels
   */
@@ -93,6 +76,11 @@ function getUserFollows(callback, offset = 0) {
     offset: offset,
     limit: limit
   }, (data) => {
+    if (!data) {
+      //Try again later?
+      window.setTimeout(() => getUserFollows(), 60000);
+      return;
+    }
     var j = 0;
     for (var i = 0; i < data.follows.length; i += 1) {
       if (userFollowIDs.indexOf(data.follows[i].channel._id) < 0) {
@@ -103,10 +91,13 @@ function getUserFollows(callback, offset = 0) {
     }
     j = j ? j : limit;
     if (data._total > offset) {
-      getUserFollows(callback, offset + j);
+      getUserFollows(offset + j);
     } else {
-      //cleanFavorites(callback);
-      callback();
+      browser.runtime.sendMessage({
+        content: "followed"
+      });
+      //Now get the user's followed streams
+      startFollowAlarm();
     }
   })
 }
@@ -117,18 +108,17 @@ function getAuthorizedUser() {
     authorized user
   */
   twitchAPI('Get User', {}, (data) => {
+    if (!data) {
+      //Try again later?
+      window.setTimeout(() => getAuthorizedUser(), 60000);
+      return;
+    }
     authorizedUser = data;
     browser.runtime.sendMessage({
       content: "initialize"
     });
     //Now get the user's follows
-    getUserFollows(() => {
-      browser.runtime.sendMessage({
-        content: "followed"
-      });
-      //Now get the user's followed streams
-      startFollowAlarm();
-    });
+    getUserFollows();
   });
 }
 

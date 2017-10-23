@@ -72,7 +72,7 @@ var texts = document.getElementsByClassName("text");
 for (var i = 0; i < texts.length; i += 1) {
   var text = texts[i];
   text.value = bp.getStorage(text.id);
-  text.addEventListener('input', (e) => {
+  text.addEventListener('change', (e) => {
     text = e.target;
     bp.setStorage(text.id, text.value);
   })

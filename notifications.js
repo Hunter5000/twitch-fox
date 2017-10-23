@@ -5,7 +5,7 @@
 var lastURL = "";
 var lastName = "";
 
-function getFollowedStreams(callback, offset = 0) {
+function getFollowedStreams(offset = 0) {
   /*
     Get all of a user's followed streams
   */
@@ -15,6 +15,7 @@ function getFollowedStreams(callback, offset = 0) {
     userFollowedStreams = [];
   }
   var twitchCallback = function(data) {
+    if (!data) window.setTimeout(() => getFollowedStreams(), 60000);
     for (var i = 0; i < data.streams.length; i += 1) {
       if (userFollowIDs.indexOf(String(data.streams[i].channel._id)) < 0) {
         //For some reason, we don't have this channel marked as followed
@@ -22,16 +23,12 @@ function getFollowedStreams(callback, offset = 0) {
           //Assume that Twitch is right, and update our follows!
           getUserFollows(() => {
             browser.runtime.sendMessage({
-              content: "followed"
+              content: "followedStreams"
             });
           });
         } else if (getStorage("nonTwitchFollows")) {
           //I have no clue when this would ever happen
-          getFollows(() => {
-            browser.runtime.sendMessage({
-              content: "followed"
-            });
-          });
+          getFollows();
         }
       }
       if (userFollowedStreams.map(stream => stream._id).indexOf(
@@ -49,9 +46,13 @@ function getFollowedStreams(callback, offset = 0) {
     }
     j = j ? j : limit;
     if (data._total > offset) {
-      getFollowedStreams(callback, offset + j);
+      getFollowedStreams(offset + j);
     } else {
-      callback();
+      //Done
+      updateBadge();
+      browser.runtime.sendMessage({
+        content: "followed"
+      });
     }
   }
   if (authorizedUser) {
@@ -66,8 +67,11 @@ function getFollowedStreams(callback, offset = 0) {
       limit: limit
     }, (data) => twitchCallback(data));
   } else {
+    //We've got no streams to get
     userFollowedStreams = [];
-    callback();
+    browser.runtime.sendMessage({
+      content: "followed"
+    });
   }
 }
 
@@ -178,12 +182,7 @@ function updateBadge() {
 }
 
 function onFollowAlarmTrigger() {
-  getFollowedStreams(() => {
-    updateBadge();
-    browser.runtime.sendMessage({
-      content: "followed"
-    });
-  });
+  getFollowedStreams();
 }
 
 browser.alarms.onAlarm.addListener(alarmInfo => {

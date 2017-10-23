@@ -31,7 +31,7 @@ const defaults = {
   alarmVolume: 20,
   minutesBetweenCheck: 1,
   resultLimit: 12,
-  languageCodes: ""
+  languageCodes: ''
 }
 
 var storage = {};
@@ -44,8 +44,11 @@ function setStorage(key, value, callback) {
   var obj = {};
   obj[key] = value;
   browser.storage.sync.set(obj).then(() => {
-    if (key != "mode") {
-      updateAlarm();
+    updateAlarm();
+    browser.runtime.sendMessage({
+      content: "options"
+    });
+    if (key == "tooltips" || key == "nonTwitchFollows") {
       browser.runtime.sendMessage({
         content: "initialize"
       });
@@ -62,7 +65,12 @@ function follow(channel) {
     if (follows.indexOf(String(channel._id)) < 0) {
       follows.unshift(String(channel._id));
       setStorage("follows", follows);
-      getFollow(String(channel._id));
+      getFollow(String(channel._id), () => {
+        startFollowAlarm();
+        browser.runtime.sendMessage({
+          content: "followed"
+        });
+      });
     }
   } else {
     //Only a provisional follow
@@ -70,13 +78,12 @@ function follow(channel) {
       userFollowIDs.unshift(String(channel._id));
       userFollows.unshift(channel);
     }
+    //Also have to check if there are any new followed streams
+    startFollowAlarm();
+    browser.runtime.sendMessage({
+      content: "followed"
+    });
   }
-  //Also have to check if there are any new followed streams
-  startFollowAlarm();
-  updateBadge();
-  browser.runtime.sendMessage({
-    content: "followed"
-  });
 }
 
 function unfollow(channel) {
@@ -112,17 +119,19 @@ function unfollow(channel) {
   });
 }
 
-function favorite(_id, callback) {
+function favorite(_id) {
   var favorites = getStorage("favorites");
   if (userFollowIDs.indexOf(_id) > -1 && favorites.indexOf(_id) < 0) {
     favorites.unshift(_id);
     setStorage("favorites", favorites);
   }
   updateBadge();
-  callback(true);
+  browser.runtime.sendMessage({
+    content: "updatePage"
+  });
 }
 
-function unfavorite(_id, callback) {
+function unfavorite(_id) {
   var favorites = getStorage("favorites");
   var index = favorites.indexOf(_id);
   if (index > -1) {
@@ -130,7 +139,9 @@ function unfavorite(_id, callback) {
     setStorage("favorites", favorites);
   }
   updateBadge();
-  callback(true);
+  browser.runtime.sendMessage({
+    content: "updatePage"
+  });
 }
 
 function unfavoriteAll() {
@@ -141,42 +152,34 @@ function unfavoriteAll() {
   });
 }
 
-/*function cleanFavorites(callback) {
-  if (!authorizedUser) callback();
-  var favorites = getStorage("favorites");
-  for (var i = 0; i < favorites.length; i += 1) {
-    if (userFollowIDs.indexOf(favorites[i]) < 0) {
-      favorites.splice(i, 1);
-      i -= 1;
-    }
-  }
-  setStorage("favorites", favorites);
-  updateBadge();
-  callback();
-}*/
+function resetStorage(settings, overwrite) {
+  var keys = Object.keys(settings);
 
-var keys = Object.keys(defaults);
-
-browser.storage.sync.get(null).then((res) => {
-  var prop;
-  var val;
-  for (var i = 0; i < keys.length; i += 1) {
-    prop = keys[i];
-    if (i + 1 < keys.length) {
-      if (res[prop] == null) {
-        val = defaults[prop];
-        setStorage(prop, val);
+  browser.storage.sync.get(null).then((res) => {
+    var prop;
+    var val;
+    for (var i = 0; i < keys.length + 1; i += 1) {
+      prop = keys[i];
+      if (i < keys.length) {
+        if (res[prop] === undefined || overwrite) {
+          val = settings[prop];
+          setStorage(prop, val);
+        } else {
+          storage[prop] = res[prop];
+        }
       } else {
-        storage[prop] = res[prop];
-      }
-    } else {
-      //This is the last setting, so make sure to wake up the other scripts
-      val = res[prop] == null ? defaults[prop] : res[prop];
-      if (getStorage("token")) {
-        setStorage(prop, val, getAuthorizedUser);
-      } else if (getStorage("nonTwitchFollows")) {
-        setStorage(prop, val, () => initFollows);
+        //All settings accounted for
+
+        browser.storage.sync.get("token").then((res) => {
+          if (res.token) {
+            setStorage(prop, val, getAuthorizedUser);
+          } else if (getStorage("nonTwitchFollows")) {
+            setStorage(prop, val, () => initFollows);
+          }
+        });
       }
     }
-  }
-})
+  })
+}
+
+resetStorage(defaults);

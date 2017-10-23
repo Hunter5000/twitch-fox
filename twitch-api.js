@@ -14,7 +14,7 @@ var userFollowIDs = []; //Array with IDs of followed channels
 var userFollowedStreams = []; //Array with followed stream objects
 
 var results = defaultResults();
-var index = 0;
+var resultsIndex = 0;
 
 function getResults() {
   return results;
@@ -25,11 +25,11 @@ function setResults(newResults) {
 }
 
 function getIndex() {
-  return index;
+  return resultsIndex;
 }
 
 function setIndex(newIndex) {
-  index = newIndex;
+  resultsIndex = newIndex;
 }
 
 function defaultContent() {
@@ -149,6 +149,7 @@ function twitchAPI(endpoint, opts, callback) {
     if (response.status == 200) response.json().then((data) => {
       callback(data);
     })
-    else if (response.status == 204) callback();
+    else if (response.status == 204) callback(true)
+    else callback();
   });
 }

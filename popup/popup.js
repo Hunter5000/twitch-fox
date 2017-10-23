@@ -1083,46 +1083,48 @@ function getApiResults(endpoint, opts = {}, newIndex, reset) {
   refresh.classList.add("thinking");
   searchBox.placeholder = browser.i18n.getMessage("loading");
   bp.twitchAPI(endpoint, opts, (data) => {
-    switch (endpoint) {
-      case "Get Top Games":
-        Array.prototype.push.apply(results[index].content, data.top);
-        results[index].type = "game";
-        break;
-      case "Get Live Streams":
-      case "Search Streams":
-        Array.prototype.push.apply(results[index].content, data.streams);
-        results[index].type = "stream";
-        break;
-      case "Search Games":
-        Array.prototype.push.apply(results[index].content, data.games);
-        results[index].type = "game";
-        break;
-      case "Get Top Videos":
-        Array.prototype.push.apply(results[index].content, data.vods);
-        results[index].type = "video";
-        break;
-      case 'Get Followed Videos':
-      case "Get Channel Videos":
-        Array.prototype.push.apply(results[index].content, data.videos);
-        results[index].type = "video";
-        break;
-      case "Get Followed Clips":
-      case "Get Top Clips":
-        Array.prototype.push.apply(results[index].content, data.clips);
-        results[index].type = "clip";
-        break;
-      case "Search Channels":
-        Array.prototype.push.apply(results[index].content, data.channels);
-        results[index].type = "channel";
-        break;
-      default:
-        break;
+    if (data) {
+      switch (endpoint) {
+        case "Get Top Games":
+          Array.prototype.push.apply(results[index].content, data.top);
+          results[index].type = "game";
+          break;
+        case "Get Live Streams":
+        case "Search Streams":
+          Array.prototype.push.apply(results[index].content, data.streams);
+          results[index].type = "stream";
+          break;
+        case "Search Games":
+          Array.prototype.push.apply(results[index].content, data.games);
+          results[index].type = "game";
+          break;
+        case "Get Top Videos":
+          Array.prototype.push.apply(results[index].content, data.vods);
+          results[index].type = "video";
+          break;
+        case 'Get Followed Videos':
+        case "Get Channel Videos":
+          Array.prototype.push.apply(results[index].content, data.videos);
+          results[index].type = "video";
+          break;
+        case "Get Followed Clips":
+        case "Get Top Clips":
+          Array.prototype.push.apply(results[index].content, data.clips);
+          results[index].type = "clip";
+          break;
+        case "Search Channels":
+          Array.prototype.push.apply(results[index].content, data.channels);
+          results[index].type = "channel";
+          break;
+        default:
+          break;
+      }
+      results[index].total = data._total;
+      results[index].endpoint = endpoint;
+      results[index].opts = JSON.stringify(opts);
+      results[index].cursor = data._cursor;
+      bp.setResults(results);
     }
-    results[index].total = data._total;
-    results[index].endpoint = endpoint;
-    results[index].opts = JSON.stringify(opts);
-    results[index].cursor = data._cursor;
-    bp.setResults(results);
     refresh.classList.remove("thinking");
     searchBox.value = "";
     updatePage();
@@ -1212,6 +1214,7 @@ function filterContent(noScroll) {
 }
 
 function updatePage(noScroll) {
+  //console.log("updatePage");
   /*
     Create info cards from the info the Twitch API gathered
   */
@@ -1388,9 +1391,9 @@ avatar.addEventListener("click", () => {
 //Login/logout
 login.addEventListener("click", () => {
   if (bp.authorizedUser) {
-    bp.deauthorize(initialize);
+    bp.deauthorize();
   } else {
-    bp.authorize(initialize);
+    bp.authorize();
   }
 });
 
@@ -1450,9 +1453,9 @@ contentArea.addEventListener("scroll", () => {
 })
 
 browser.runtime.onMessage.addListener((request) => {
-  if (request.content == "initialize" || (request.content == "followed" &&
-      mode.substr(0, 8) == "followed")) initialize();
-  else updatePage(true);
+  if (request.content == "initialize" || (request.content == mode.substr(
+      0, 8)) || (request.content == mode)) initialize();
+  else if (request.content != "options") updatePage(true);
 });
 
 window.addEventListener('unload', function(event) {

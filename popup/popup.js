@@ -1283,7 +1283,7 @@ function updatePage(noScroll) {
       "refreshTip");
   }
 
-  searchBox.value = results[index].filter;
+  if (!noScroll) searchBox.value = results[index].filter;
 
   filterContent(noScroll);
 }

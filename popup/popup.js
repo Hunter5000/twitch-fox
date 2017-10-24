@@ -65,12 +65,12 @@ function initialize() {
 
   if (bp.getStorage('lastVersion') != version) {
     //New update
-    if (bp.getStorage('lastVersion').split('.')[2] != version.split('.')[2]) {
+    if (!version || bp.getStorage('lastVersion').split('.')[1] !=
+      version.split('.')[1]) {
       //Significant update. Show what's new
       setMode("about");
       bp.setStorage('showWhatsNew', true);
     }
-
     bp.setStorage('lastVersion', version);
   }
 

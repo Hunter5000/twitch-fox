@@ -77,7 +77,7 @@ function getFollowedStreams(offset = 0) {
 
 function notify(stream) {
   //We assume that the channel is followed and the stream is new
-  if (getStorage("favorites").indexOf(stream.channel._id) > -1) {
+  if (getStorage("favorites").indexOf(String(stream.channel._id)) > -1) {
     //Favorited channel
     if (getStorage("favoritesDesktopNotifications"))
       desktopNotification(stream);

@@ -158,27 +158,20 @@ function resetStorage(settings, overwrite) {
   browser.storage.sync.get(null).then((res) => {
     var prop;
     var val;
-    for (var i = 0; i < keys.length + 1; i += 1) {
+    for (var i = 0; i < keys.length; i += 1) {
       prop = keys[i];
-      if (i < keys.length) {
-        if (res[prop] === undefined || overwrite) {
-          val = settings[prop];
-          setStorage(prop, val);
-        } else {
-          storage[prop] = res[prop];
-        }
+      if (res[prop] === undefined || overwrite) {
+        val = settings[prop];
+        setStorage(prop, val);
       } else {
-        //All settings accounted for
-
-        browser.storage.sync.get("token").then((res) => {
-          if (res.token) {
-            setStorage(prop, val, getAuthorizedUser);
-          } else if (getStorage("nonTwitchFollows")) {
-            setStorage(prop, val, () => initFollows);
-          }
-        });
+        storage[prop] = res[prop];
       }
     }
+    //All settings accounted for
+    browser.storage.sync.get("token").then((res) => {
+      if (res.token) getAuthorizedUser()
+      else initFollows();
+    });
   })
 }
 

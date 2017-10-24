@@ -51,10 +51,7 @@ function deauthorize() {
   */
   setStorage('token', '');
   authorizedUser = null;
-  userFollowIDs = [];
-  userFollows = [];
-  userFollowedStreams = [];
-  getFollows();
+  initFollows();
   endAlarm();
   updateBadge();
   browser.runtime.sendMessage({
@@ -109,8 +106,8 @@ function getAuthorizedUser() {
   */
   twitchAPI('Get User', {}, (data) => {
     if (!data) {
-      //Try again later?
-      window.setTimeout(() => getAuthorizedUser(), 60000);
+      //Perhaps we have made a mistake.
+      deauthorize();
       return;
     }
     authorizedUser = data;

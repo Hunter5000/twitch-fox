@@ -140,6 +140,7 @@ browser.notifications.onClicked.addListener(() => {
   if (getStorage("openChat")) openChat(lastName);
   lastName = "";
   lastURL = "";
+  endAlarm();
 })
 
 browser.notifications.onClosed.addListener(() => {
@@ -162,15 +163,16 @@ function updateBadge() {
       String(stream.channel._id)) > -1 ? browser.i18n.getMessage("streaming", [
       stream.channel.display_name, stream.channel.game
     ]) + "\n" : "").join("");
-    if (title.length) title += "\n";
-    //If it's favorites mode, only show favorited streams
-    if (getStorage("favoritesMode")) title += browser.i18n.getMessage(
-      "nonFavoritesLive", userFollowedStreams.length - text);
-    else title += userFollowedStreams.map(stream => getStorage(
-        "favorites").indexOf(String(stream.channel._id)) < 0 ?
-      browser.i18n.getMessage("streaming", [
-        stream.channel.display_name, stream.channel.game
-      ]) + "\n" : "").join("");
+    if (!getStorage("favoritesMode") || userFollowedStreams.length - text > 0) {
+      //If it's favorites mode, only show favorited streams
+      if (getStorage("favoritesMode")) title += "\n" + browser.i18n.getMessage(
+        "nonFavoritesLive", userFollowedStreams.length - text);
+      else title += userFollowedStreams.map(stream => getStorage(
+          "favorites").indexOf(String(stream.channel._id)) < 0 ?
+        "\n" + browser.i18n.getMessage("streaming", [
+          stream.channel.display_name, stream.channel.game
+        ]) : "").join("");
+    }
   }
   title = title.length ? "Twitch Fox\n\n" + title : "Twitch Fox";
   browser.browserAction.setBadgeText({

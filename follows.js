@@ -65,15 +65,8 @@ function getFollows(offset = 0) {
 }
 
 function initFollows() {
-  if (getStorage("nonTwitchFollows")) {
-    getFollows(() => {
-      browser.runtime.sendMessage({
-        content: "followed"
-      });
-      //Now get the user's followed streams
-      startFollowAlarm();
-    });
-  } else {
+  if (getStorage("nonTwitchFollows")) getFollows()
+  else {
     userFollowIDs = [];
     userFollows = [];
     userFollowedStreams = [];

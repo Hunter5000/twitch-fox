@@ -17,8 +17,10 @@ function getFollowedStreams(offset = 0) {
   var twitchCallback = function(data) {
     if (!data) window.setTimeout(() => getFollowedStreams(), 60000);
     for (var i = 0; i < data.streams.length; i += 1) {
-      if (userFollowIDs.indexOf(String(data.streams[i].channel._id)) < 0) {
-        //For some reason, we don't have this channel marked as followed
+      var stream = data.streams[i];
+      if (userFollowIDs.indexOf(String(stream.channel._id)) < 0) {
+        //For some reason, we don't have this channel marked as followed,
+        //but we were still notified that it came online!
         if (authorizedUser) {
           //Assume that Twitch is right, and update our follows!
           getUserFollows(() => {
@@ -26,20 +28,17 @@ function getFollowedStreams(offset = 0) {
               content: "followedStreams"
             });
           });
-        } else if (getStorage("nonTwitchFollows")) {
-          //I have no clue when this would ever happen
-          getFollows();
-        }
+        } else if (getStorage("nonTwitchFollows")) getFollows();
       }
-      if (userFollowedStreams.map(stream => stream._id).indexOf(
-          data.streams[i]._id) < 0) {
-        userFollowedStreams.push(data.streams[i]);
+      if (userFollowedStreams.map(stream => stream._id).indexOf(stream._id) <
+        0) {
+        userFollowedStreams.push(stream);
         var notifiedStreams = getStorage("notifiedStreams");
-        if (getStorage("notifiedStreams").indexOf(data.streams[i]._id) < 0) {
+        if (notifiedStreams.indexOf(stream._id) < 0) {
           //We have not notified the user about this stream yet
-          notifiedStreams.push(data.streams[i]._id);
+          notifiedStreams.push(stream._id);
           setStorage("notifiedStreams", notifiedStreams);
-          notify(data.streams[i]);
+          notify(stream);
         }
         j += 1;
       }

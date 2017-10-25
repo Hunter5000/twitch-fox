@@ -143,9 +143,10 @@ browser.notifications.onClicked.addListener(() => {
   endAlarm();
 })
 
-browser.notifications.onClosed.addListener(() => {
+browser.notifications.onClosed.addListener((notificationId, byUser) => {
   lastName = "";
   lastURL = "";
+  if (byUser) endAlarm();
 })
 
 function updateBadge() {

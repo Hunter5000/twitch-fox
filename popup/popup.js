@@ -8,7 +8,8 @@
 var bp = browser.extension.getBackgroundPage();
 
 //Disable if bp is non-existent
-if (!bp) browser.browserAction.disable();
+//if (!bp) browser.browserAction.disable();
+//Just kidding this also disables it on non-private windows
 
 var mode;
 var showNewUser;

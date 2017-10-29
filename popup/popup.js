@@ -101,6 +101,10 @@ function initialize() {
     document.getElementById("styleLink").href = "noTooltips.css";
   }
 
+  if (bp.getStorage("darkMode")) {
+    document.getElementById("darkMode").href = "dark.css";
+  }
+
   //Tooltips
   var tooltips = document.getElementsByClassName("tooltip");
   for (var i = 0; i < tooltips.length; i += 1) {
@@ -123,8 +127,14 @@ function initialize() {
         tooltip.textContent = browser.i18n.getMessage(tooltip.id);
       }
     } else if (tooltip.id == "avatarTip") {
-      if (bp.authorizedUser) tooltip.textContent = browser.i18n.getMessage(
-        tooltip.id, bp.authorizedUser.display_name);
+      if (bp.authorizedUser)
+        if (bp.getStorage("tooltips"))
+          tooltip.textContent = browser.i18n.getMessage(
+            tooltip.id, bp.authorizedUser.display_name)
+      else {
+        tooltip.classList.add("noDisable");
+        tooltip.textContent = bp.authorizedUser.display_name;
+      }
     } else {
       tooltip.textContent = browser.i18n.getMessage(tooltip.id);
     }
@@ -235,6 +245,7 @@ function updateTab(newMode) {
         case "videos":
           if (results[index].content.length < 1)
             getApiResults("Get Top Videos");
+          else updatePage();
           break;
         case "clips":
           if (results[index].content.length < 1) getApiResults("Get Top Clips")

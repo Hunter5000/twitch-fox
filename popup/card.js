@@ -364,6 +364,16 @@ function addCard(content, type) {
         contentDiv.appendChild(cornerGame);
       }
 
+      if (bp.getStorage("showLogos")) {
+        var cornerLogo = document.createElement("div");
+        cornerLogo.classList.add("cornerLogo");
+        cornerLogo.style.backgroundImage =
+          'url("' + content.channel.logo + '")';
+        addTooltip(cornerLogo).textContent = browser.i18n.getMessage(
+          "channelLogo", content.channel.display_name);
+        contentDiv.appendChild(cornerLogo);
+      }
+
       var displayName = document.createElement("span");
       displayName.classList.add("displayName");
       contentDiv.appendChild(displayName);
@@ -593,6 +603,16 @@ function addCard(content, type) {
           }, true);
         });
         contentDiv.appendChild(cornerGame);
+      }
+
+      if (bp.getStorage("showLogos")) {
+        var cornerLogo = document.createElement("div");
+        cornerLogo.classList.add("cornerLogo");
+        cornerLogo.style.backgroundImage =
+          'url("' + thisChannel.logo + '")';
+        addTooltip(cornerLogo).textContent = browser.i18n.getMessage(
+          "channelLogo", thisChannel.display_name);
+        contentDiv.appendChild(cornerLogo);
       }
 
       var displayName = document.createElement("span");

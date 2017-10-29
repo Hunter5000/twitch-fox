@@ -85,6 +85,18 @@ function importFollows(followsJSON) {
   }
 }
 
+function cleanFollows() {
+  var follows = getStorage("follows");
+  for (var i = 0; i < follows.length; i += 1) {
+    var follow = follows[i];
+    if (isNan(follow)) {
+      follows.splice(i, 1);
+      i -= 1;
+    }
+  }
+  //console.log("Follows cleaned");
+}
+
 /*function importFollowsFromChannel(channel) {
   //Import follows from a channel (ID)
 }*/

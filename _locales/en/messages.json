@@ -133,7 +133,7 @@
 
 
   "aboutDeveloperName": {
-    "message": "Hunter",
+    "message": "-Hunter",
     "description": "The 'signed' name of the developer. Could also contain an indication of who translated the add-on."
   },
 
@@ -160,7 +160,7 @@
   },
 
   "aboutTextWhatsNew2": {
-    "message": "From 4.0.X: Re-added the ability to follow channels without going through a Twitch account (The new option can be found in the settings page.) I apologize for removing this feature initially, and I am sorry if its current implementation is worse than before, but I understand how important this feature is to many of you, so I have made an effort to reimplement it as soon as I could.",
+    "message": "(Re-) Added a dark mode and an option (on by default) to show channel logos for streams, videos, and clips. Coming soon: Followed games and Streamlink support!",
     "description": "Second part of the message detailing add-on update information."
   },
 
@@ -582,9 +582,9 @@
     }
   },
 
-  "easeOfUseSettings": {
-    "message": "Ease of use settings",
-    "description": "Header for the settings that deal with ease of use."
+  "userInterfaceSettings": {
+    "message": "User interface settings",
+    "description": "Header for the settings that deal with interface."
   },
 
   "enableTooltips": {
@@ -809,5 +809,26 @@
   "exportFollows": {
     "message": "Export follows to file",
     "description": "Description of the button that allows follow exportation."
+  },
+
+  "channelLogo": {
+    "message": "$NAME$'s logo",
+    "description": "Description of a channel's logo.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "DansGaming"
+      }
+    }
+  },
+
+  "useDarkMode": {
+    "message": "Dark mode",
+    "description": "Description of the button that turns on dark mode."
+  },
+
+  "showChannelLogos": {
+    "message": "Show channel logos on streams, videos, and clips",
+    "description": "Description of the button that enables showing channel logos."
   }
 }

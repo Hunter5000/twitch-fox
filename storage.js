@@ -15,9 +15,11 @@ const defaults = {
 
   //Settings
   nonTwitchFollows: false,
+  darkMode: false,
   tooltips: true,
   showNewUser: true,
   showWhatsNew: true,
+  showLogos: true,
   openTwitchPage: false,
   openPopout: false,
   openChat: false,
@@ -169,10 +171,13 @@ function resetStorage(settings, overwrite) {
     }
     //All settings accounted for
     browser.storage.sync.get("token").then((res) => {
+      cleanFollows();
       if (res.token) getAuthorizedUser()
       else initFollows();
     });
   })
 }
+
+//Clean follows!
 
 resetStorage(defaults);

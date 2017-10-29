@@ -102,7 +102,7 @@ html, body {
   top: 4px;
   left: 4px;
   background: url(images/search.png);
-  opacity: 0.3;
+  opacity: 0.5;
 }
 
 .search.hide {
@@ -118,7 +118,7 @@ html, body {
 }
 
 .menuButton.search.possible {
-  opacity: 0.9;
+  opacity: 0.8;
 }
 
 .menuButton.search:hover {
@@ -628,6 +628,33 @@ html, body {
   float: right;
 }
 
+.cornerLogo {
+  position: absolute;
+  width: 43px;
+  height: 43px;
+  border-width: 2px 2px 0px 0px;
+  border-color: white;
+  border-style: solid;
+  top: 109px;
+  left: 5px;
+  background-size: 43px 43px;
+  background-color: #FAF9FA;
+  opacity: 0.9;
+}
+
+.cornerLogo:hover {
+  opacity: 1;
+}
+
+.cornerLogo:hover .tooltip {
+  visibility: visible;
+}
+
+.cornerLogo .tooltip {
+  top: 44px;
+  left: 0px;
+}
+
 .cornerGame {
   position: absolute;
   width: 38px;
@@ -690,15 +717,16 @@ html, body {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  word-wrap: break-word;
   -moz-user-select: text;
 }
 
 .status.stream {
   width: 190px;
   height: 16px;
-  left: 6px;
+  left: 2px;
   top: 2px;
-  transition: height 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .contentBack.stream:hover .status {
@@ -766,7 +794,17 @@ html, body {
 
 .contentButton.bottom.stream .tooltip {
   top: 31px;
-  left: -70px;
+  left: -45px;
+}
+
+.contentButton.bottom.follow.stream .tooltip {
+  top: 31px;
+  left: -75px;
+}
+
+.contentButton.bottom.unfollow.stream .tooltip {
+  top: 31px;
+  left: -75px;
 }
 
 .contentButton.bottom.game .tooltip {

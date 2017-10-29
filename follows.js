@@ -87,14 +87,16 @@ function importFollows(followsJSON) {
 
 function cleanFollows() {
   var follows = getStorage("follows");
+  var changed = false;
   for (var i = 0; i < follows.length; i += 1) {
     var follow = follows[i];
-    if (isNan(follow)) {
+    if (isNaN(follow)) {
       follows.splice(i, 1);
+      changed = true;
       i -= 1;
     }
   }
-  setStorage("follows", follows);
+  if (changed) setStorage("follows", follows, initFollows);
   //console.log("Follows cleaned");
 }
 

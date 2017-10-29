@@ -94,6 +94,7 @@ function cleanFollows() {
       i -= 1;
     }
   }
+  setStorage("follows", follows);
   //console.log("Follows cleaned");
 }
 

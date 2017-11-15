@@ -3,7 +3,7 @@
   "manifest_version": 2,
   "name": "__MSG_extensionName__",
   "description": "__MSG_extensionDescription__",
-  "version": "4.2.1",
+  "version": "4.2.2",
   "default_locale": "en",
 
   "applications": {
@@ -27,12 +27,7 @@
 
   "background": {
     "scripts": [
-      "twitch-api.js",
-      "authorize.js",
-      "follows.js",
-      "storage.js",
-      "notifications.js",
-      "alarm.js"
+      "background.js"
     ]
   },
 

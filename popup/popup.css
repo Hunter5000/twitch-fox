@@ -58,13 +58,20 @@ html, body {
 
 .leftBar {
   position: fixed;
+  height: 564px;
+  top: 36px;
+  z-index: 1;
+}
+
+.leftBarBack {
+  position: fixed;
   width: 36px;
   height: 564px;
   top: 36px;
   background-color: #17141F;
   box-sizing: border-box;
   border-right: 1px solid #2C2541;
-  z-index: 1;
+  z-index: 0;
 }
 
 .menuButton {

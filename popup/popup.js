@@ -656,8 +656,8 @@ addCard = (content, type) => {
 
       addTooltip(cornerGame, true).textContent =
         bp.getStorage('tooltips') ?
-        browser.i18n.getMessage('gameStreamsTip', content.game) :
-        content.game;
+          browser.i18n.getMessage('gameStreamsTip', content.game) :
+          content.game;
       cornerGame.addEventListener('click', () => {
         // Get Live Streams
         getApiResults('Get Live Streams', {
@@ -902,8 +902,8 @@ addCard = (content, type) => {
         }-52x72.jpg")`;
       addTooltip(cornerGame, true).textContent =
         bp.getStorage('tooltips') ?
-        browser.i18n.getMessage('gameStreamsTip', content.game) :
-        content.game;
+          browser.i18n.getMessage('gameStreamsTip', content.game) :
+          content.game;
       cornerGame.addEventListener('click', () => {
         // Get Live Streams
         getApiResults('Get Live Streams', {
@@ -1095,8 +1095,8 @@ addCard = (content, type) => {
         }-52x72.jpg")`;
       addTooltip(cornerGame, true).textContent =
         bp.getStorage('tooltips') ?
-        browser.i18n.getMessage('gameStreamsTip', channel.game) :
-        channel.game;
+          browser.i18n.getMessage('gameStreamsTip', channel.game) :
+          channel.game;
       cornerGame.addEventListener('click', () => {
         // Get Live Streams
         getApiResults('Get Live Streams', {

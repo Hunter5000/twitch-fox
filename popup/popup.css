@@ -341,7 +341,7 @@ html, body {
 
 .contentArea {
   display: block;
-  position: absolute;
+  position: fixed;
   top: 36px;
   left: 36px;
   width: 564px;
